@@ -1,6 +1,8 @@
 syntax = "proto3";
 package message;
 
+option go_package = "proto/message;message";
+
 message Message {
   string Log = 1;
   int32 Num = 2;

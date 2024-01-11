@@ -25,7 +25,7 @@ func main() {
 		ConfigPath: configPath,
 	})
 
-	//log.Sync()
+	//log.Sync() из какого пакета и зачем оно надо
 	if err != nil {
 		log.Fatal(err)
 	}
