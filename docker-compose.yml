@@ -1,10 +1,21 @@
 version: '3.4'
 
 services:
-  awesomeproject:
-    image: awesomeproject
+  client:
+    image: grpc-client
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile_base
     ports:
-      - 8080:8080
+      - "8080:8080"
+    networks:
+      - awesome
+  server:
+    image: grpc-server
+    build:
+      context: .
+      dockerfile: Dockerfile_core
+    networks:
+      - awesome
+networks:
+  awesome:
