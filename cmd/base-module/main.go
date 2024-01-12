@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-// Клиент, запрашивающий у сервера данные
+// Client requesting data from the server
 func main() {
 	var (
 		configPath string
@@ -18,6 +18,13 @@ func main() {
 	flag.StringVar(&etcdAddr, "etcd", "", "etcd3 address")
 	flag.Parse()
 
+	if len(configPath) > 0 {
+		log.Infof("Client started with config=%s\n", configPath)
+	}
+	if len(etcdAddr) > 0 {
+		log.Infof("Client started with etcd=%s\n", etcdAddr)
+	}
+
 	ctx := context.Background()
 
 	err := bootstrap.Run(ctx, &bootstrap.Config{
@@ -25,9 +32,9 @@ func main() {
 		ConfigPath: configPath,
 	})
 
-	//log.Sync() из какого пакета и зачем оно надо
+	//log.Sync()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("awesome project stopped")
+	log.Info("awesome project client stopped")
 }

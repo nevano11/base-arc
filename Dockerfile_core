@@ -1,0 +1,14 @@
+FROM golang:1.21.6-alpine
+
+WORKDIR /app
+
+COPY go.mod ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -C /app/cmd/core-module/
+
+EXPOSE 8080
+
+ENTRYPOINT exec go run cmd/core-module/main.go --config=cmd/core-module/config.json
