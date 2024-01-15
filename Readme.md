@@ -23,5 +23,5 @@ Protoc generation
     protoc -I=proto --go-grpc_out=. proto/*.proto
 Tarantool tests
 
-    docker run --name mytarantool -p3301:3301 -e TARANTOOL_USER_NAME=name -e TARANTOOL_USER_PASSWORD=pass -d -v ./init/tt:/opt/tarantool tarantool/tarantool tarantool /opt/tarantool/*.lua
+    docker run --name mytarantool -p3301:3301 -e TARANTOOL_USER_NAME=name -e TARANTOOL_USER_PASSWORD=pass -d -v ./init/tt:/opt/tarantool tarantool/tarantool tarantool /opt/tarantool/init.lua
     docker exec -i -t mytarantool console

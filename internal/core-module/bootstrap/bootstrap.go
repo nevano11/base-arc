@@ -3,6 +3,8 @@ package bootstrap
 import (
 	"awesomeProject/internal/core-module/config"
 	"awesomeProject/internal/core-module/handler"
+	"awesomeProject/internal/core-module/repository"
+	"awesomeProject/internal/core-module/service"
 	"awesomeProject/proto/message"
 	"context"
 	"fmt"
@@ -21,21 +23,34 @@ func Run(ctx context.Context, baseConfig *Config) error {
 
 	// Read configStorage (by etcd addr)
 
+	log.Info("Creating tarantool repository")
+	bandRepository, err := repository.NewTtBandRepository(ctx, localConfig.TarantoolConfig)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Creating band service")
+	bandService, err := service.NewBandService(bandRepository)
+	if err != nil {
+		return err
+	}
+
+	messageService := handler.NewMessageService(bandService)
+
 	log.Info("Try to run grpc server")
-	if err := runGrpcServer(localConfig.GrpcAddr); err != nil {
+	if err := runGrpcServer(localConfig.GrpcAddr, messageService); err != nil {
 		return err
 	}
 	return nil
 }
 
-func runGrpcServer(etcdAddr string) error {
+func runGrpcServer(etcdAddr string, messageService message.MessageServiceServer) error {
 	listener, err := net.Listen("tcp", etcdAddr)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
 	grpcServer := grpc.NewServer()
-	messageService := handler.NewMessageService()
 	message.RegisterMessageServiceServer(grpcServer, messageService)
 
 	if err := grpcServer.Serve(listener); err != nil {
