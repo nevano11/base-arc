@@ -5,9 +5,9 @@ WORKDIR /app
 COPY go.mod ./
 RUN go mod download
 
-COPY . .
+COPY .  .
 
-RUN go build -C /app/cmd/core-module/
+RUN GOENV=/app/go.env  go build -mod vendor /app/cmd/core-module/ 
 
 EXPOSE 8080
 
