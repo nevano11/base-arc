@@ -9,5 +9,8 @@ message Message {
 }
 
 service MessageService {
-  rpc SendMessage(Message) returns (Message) {}
+  rpc SendMessage(Message) returns (Message) {} // Оправить x получить x*2
+  rpc SumOfNumbers(stream Message) returns (Message) {} // Оправить 1, 2, 3, 4 получить сумму = 10
+  rpc Factorial(Message) returns (stream Message) {} // Отправить 5 получить 4 3 2 1
+  rpc XPow2Chat(stream Message) returns (stream Message) {} // Отправить 1 2 5 получить 1 4 25
 }

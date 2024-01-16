@@ -34,5 +34,8 @@ func (cr *BaseLocalConfigReader) NewLocalConfig(configPath string) (*LocalConfig
 	if err := jsonParser.Decode(&localConfig); err != nil {
 		return nil, err
 	}
+
+	log.Info(localConfig)
+
 	return localConfig, nil
 }

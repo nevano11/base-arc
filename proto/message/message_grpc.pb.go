@@ -19,7 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MessageService_SendMessage_FullMethodName = "/message.MessageService/SendMessage"
+	MessageService_SendMessage_FullMethodName  = "/message.MessageService/SendMessage"
+	MessageService_SumOfNumbers_FullMethodName = "/message.MessageService/SumOfNumbers"
+	MessageService_Factorial_FullMethodName    = "/message.MessageService/Factorial"
+	MessageService_XPow2Chat_FullMethodName    = "/message.MessageService/XPow2Chat"
 )
 
 // MessageServiceClient is the client API for MessageService service.
@@ -27,6 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageServiceClient interface {
 	SendMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
+	SumOfNumbers(ctx context.Context, opts ...grpc.CallOption) (MessageService_SumOfNumbersClient, error)
+	Factorial(ctx context.Context, in *Message, opts ...grpc.CallOption) (MessageService_FactorialClient, error)
+	XPow2Chat(ctx context.Context, opts ...grpc.CallOption) (MessageService_XPow2ChatClient, error)
 }
 
 type messageServiceClient struct {
@@ -46,11 +52,111 @@ func (c *messageServiceClient) SendMessage(ctx context.Context, in *Message, opt
 	return out, nil
 }
 
+func (c *messageServiceClient) SumOfNumbers(ctx context.Context, opts ...grpc.CallOption) (MessageService_SumOfNumbersClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MessageService_ServiceDesc.Streams[0], MessageService_SumOfNumbers_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &messageServiceSumOfNumbersClient{stream}
+	return x, nil
+}
+
+type MessageService_SumOfNumbersClient interface {
+	Send(*Message) error
+	CloseAndRecv() (*Message, error)
+	grpc.ClientStream
+}
+
+type messageServiceSumOfNumbersClient struct {
+	grpc.ClientStream
+}
+
+func (x *messageServiceSumOfNumbersClient) Send(m *Message) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *messageServiceSumOfNumbersClient) CloseAndRecv() (*Message, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Message)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *messageServiceClient) Factorial(ctx context.Context, in *Message, opts ...grpc.CallOption) (MessageService_FactorialClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MessageService_ServiceDesc.Streams[1], MessageService_Factorial_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &messageServiceFactorialClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type MessageService_FactorialClient interface {
+	Recv() (*Message, error)
+	grpc.ClientStream
+}
+
+type messageServiceFactorialClient struct {
+	grpc.ClientStream
+}
+
+func (x *messageServiceFactorialClient) Recv() (*Message, error) {
+	m := new(Message)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *messageServiceClient) XPow2Chat(ctx context.Context, opts ...grpc.CallOption) (MessageService_XPow2ChatClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MessageService_ServiceDesc.Streams[2], MessageService_XPow2Chat_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &messageServiceXPow2ChatClient{stream}
+	return x, nil
+}
+
+type MessageService_XPow2ChatClient interface {
+	Send(*Message) error
+	Recv() (*Message, error)
+	grpc.ClientStream
+}
+
+type messageServiceXPow2ChatClient struct {
+	grpc.ClientStream
+}
+
+func (x *messageServiceXPow2ChatClient) Send(m *Message) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *messageServiceXPow2ChatClient) Recv() (*Message, error) {
+	m := new(Message)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // MessageServiceServer is the server API for MessageService service.
 // All implementations must embed UnimplementedMessageServiceServer
 // for forward compatibility
 type MessageServiceServer interface {
 	SendMessage(context.Context, *Message) (*Message, error)
+	SumOfNumbers(MessageService_SumOfNumbersServer) error
+	Factorial(*Message, MessageService_FactorialServer) error
+	XPow2Chat(MessageService_XPow2ChatServer) error
 	mustEmbedUnimplementedMessageServiceServer()
 }
 
@@ -60,6 +166,15 @@ type UnimplementedMessageServiceServer struct {
 
 func (UnimplementedMessageServiceServer) SendMessage(context.Context, *Message) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendMessage not implemented")
+}
+func (UnimplementedMessageServiceServer) SumOfNumbers(MessageService_SumOfNumbersServer) error {
+	return status.Errorf(codes.Unimplemented, "method SumOfNumbers not implemented")
+}
+func (UnimplementedMessageServiceServer) Factorial(*Message, MessageService_FactorialServer) error {
+	return status.Errorf(codes.Unimplemented, "method Factorial not implemented")
+}
+func (UnimplementedMessageServiceServer) XPow2Chat(MessageService_XPow2ChatServer) error {
+	return status.Errorf(codes.Unimplemented, "method XPow2Chat not implemented")
 }
 func (UnimplementedMessageServiceServer) mustEmbedUnimplementedMessageServiceServer() {}
 
@@ -92,6 +207,79 @@ func _MessageService_SendMessage_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MessageService_SumOfNumbers_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MessageServiceServer).SumOfNumbers(&messageServiceSumOfNumbersServer{stream})
+}
+
+type MessageService_SumOfNumbersServer interface {
+	SendAndClose(*Message) error
+	Recv() (*Message, error)
+	grpc.ServerStream
+}
+
+type messageServiceSumOfNumbersServer struct {
+	grpc.ServerStream
+}
+
+func (x *messageServiceSumOfNumbersServer) SendAndClose(m *Message) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *messageServiceSumOfNumbersServer) Recv() (*Message, error) {
+	m := new(Message)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _MessageService_Factorial_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Message)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(MessageServiceServer).Factorial(m, &messageServiceFactorialServer{stream})
+}
+
+type MessageService_FactorialServer interface {
+	Send(*Message) error
+	grpc.ServerStream
+}
+
+type messageServiceFactorialServer struct {
+	grpc.ServerStream
+}
+
+func (x *messageServiceFactorialServer) Send(m *Message) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _MessageService_XPow2Chat_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MessageServiceServer).XPow2Chat(&messageServiceXPow2ChatServer{stream})
+}
+
+type MessageService_XPow2ChatServer interface {
+	Send(*Message) error
+	Recv() (*Message, error)
+	grpc.ServerStream
+}
+
+type messageServiceXPow2ChatServer struct {
+	grpc.ServerStream
+}
+
+func (x *messageServiceXPow2ChatServer) Send(m *Message) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *messageServiceXPow2ChatServer) Recv() (*Message, error) {
+	m := new(Message)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // MessageService_ServiceDesc is the grpc.ServiceDesc for MessageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +292,23 @@ var MessageService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MessageService_SendMessage_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SumOfNumbers",
+			Handler:       _MessageService_SumOfNumbers_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Factorial",
+			Handler:       _MessageService_Factorial_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "XPow2Chat",
+			Handler:       _MessageService_XPow2Chat_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "message.proto",
 }
