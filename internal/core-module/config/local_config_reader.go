@@ -17,5 +17,10 @@ func (cr *FakeLocalConfigReader) NewLocalConfig(configPath string) (*LocalConfig
 	log.Info("Reading data from config file. Unmarshall it on LocalConfig struct")
 	return &LocalConfig{
 		GrpcAddr: "localhost:9000",
+		TarantoolConfig: TarantoolConfig{
+			Address:  "localhost:9000",
+			User:     "name",
+			Password: "pass",
+		},
 	}, nil
 }

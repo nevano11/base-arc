@@ -2,12 +2,14 @@ package bootstrap
 
 import (
 	"awesomeProject/internal/base-module/config"
+	"awesomeProject/internal/base-module/handler"
 	"awesomeProject/proto/message"
 	"context"
 	"fmt"
 	"github.com/labstack/gommon/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"time"
 )
 
 func Run(ctx context.Context, baseConfig *Config) error {
@@ -35,11 +37,28 @@ func Run(ctx context.Context, baseConfig *Config) error {
 
 	client := message.NewMessageServiceClient(grpcConnection)
 
-	err = sendMessage(client)
+	err = handler.SendMessage(ctx, client)
 	if err != nil {
-		return err
+		log.Errorf("Error on work of %s: %s", "SendMessage", err)
 	}
+	time.Sleep(2 * time.Second)
 
+	err = handler.SumOfNumbers(ctx, client)
+	if err != nil {
+		log.Errorf("Error on work of %s: %s", "SumOfNumbers", err)
+	}
+	time.Sleep(2 * time.Second)
+
+	err = handler.Factorial(ctx, client)
+	if err != nil {
+		log.Errorf("Error on work of %s: %s", "Factorial", err)
+	}
+	time.Sleep(2 * time.Second)
+
+	err = handler.XPow2Chat(ctx, client)
+	if err != nil {
+		log.Errorf("Error on work of %s: %s", "XPow2Chat", err)
+	}
 	return nil
 }
 
@@ -50,13 +69,4 @@ func createGrpcConnection(ctx context.Context, grpcAddr string) (*grpc.ClientCon
 		return nil, fmt.Errorf("did not connect: %s", err)
 	}
 	return conn, nil
-}
-
-func sendMessage(client message.MessageServiceClient) error {
-	response, err := client.SendMessage(context.Background(), &message.Message{Log: "Hello From Client!", Num: 21})
-	if err != nil {
-		return fmt.Errorf("error when calling SendMessage: %s", err)
-	}
-	fmt.Printf("Response from server: num=%d, log=%s", response.Num, response.Log)
-	return nil
 }

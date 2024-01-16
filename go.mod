@@ -26,9 +26,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
-	github.com/tarantool/go-iproto v1.0.0 // indirect
-	github.com/tarantool/go-openssl v0.0.8-0.20231004103608-336ca939d2ca // indirect
-	github.com/tarantool/go-tarantool/v2 v2.0.0-20231228025437-02a8820b819e // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

@@ -7,8 +7,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -C /app/cmd/core-module/
+RUN GOENV=/app/go.env go build -C /app/cmd/base-module/
 
 EXPOSE 8080
 
-ENTRYPOINT exec go run cmd/core-module/main.go --config=cmd/core-module/config.json
+ENTRYPOINT exec go run cmd/core-module/main.go --config=cmd/core-module/docker_config.json

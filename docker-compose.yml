@@ -10,11 +10,15 @@ services:
       - "8080:8080"
     networks:
       - awesome
+    depends_on:
+      - server
   server:
     image: grpc-server
     build:
       context: .
       dockerfile: Dockerfile_core
+    ports:
+      - "9000:9000"
     networks:
       - awesome
 networks:
