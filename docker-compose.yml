@@ -2,6 +2,7 @@ version: '3.4'
 
 services:
   client:
+    container_name: grpc-client
     image: grpc-client
     build:
       context: .
@@ -13,13 +14,15 @@ services:
     depends_on:
       - server
   server:
+    container_name: grpc-server
     image: grpc-server
     build:
       context: .
       dockerfile: Dockerfile_core
     ports:
-      - "9000:9000"
+      - "9005:9000"
     networks:
       - awesome
+    restart: unless-stopped
 networks:
   awesome:

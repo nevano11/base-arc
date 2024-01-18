@@ -10,12 +10,14 @@ import (
 // Client requesting data from the server
 func main() {
 	var (
-		configPath string
-		etcdAddr   string
+		configPath     string
+		configFilename string
+		etcdAddr       string
 	)
 
 	flag.StringVar(&configPath, "config", "", "path to config")
-	flag.StringVar(&etcdAddr, "etcd", "", "etcd3 address")
+	flag.StringVar(&configFilename, "configFile", "", "config filename")
+	flag.StringVar(&etcdAddr, "etcd", "", "etcd address")
 	flag.Parse()
 
 	if len(configPath) > 0 {
@@ -27,9 +29,10 @@ func main() {
 
 	ctx := context.Background()
 
-	err := bootstrap.Run(ctx, &bootstrap.Config{
-		ETCDAddr:   etcdAddr,
-		ConfigPath: configPath,
+	err := bootstrap.Run(ctx, &bootstrap.PathConfig{
+		ETCDAddr:       etcdAddr,
+		ConfigPath:     configPath,
+		ConfigFilename: configFilename,
 	})
 
 	//log.Sync()

@@ -1,8 +1,0 @@
-{
-  "core-addr": "localhost:9001",
-  "tarantool": {
-    "addr": "localhost:3301",
-    "user": "name",
-    "password": "pass"
-  }
-}

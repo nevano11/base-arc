@@ -7,15 +7,20 @@ import (
 	"github.com/labstack/gommon/log"
 	"google.golang.org/grpc"
 	"io"
-	"math/rand"
 	"time"
 )
 
-func SendMessage(ctx context.Context, client message.MessageServiceClient) error {
-	messageToSend := &message.Message{Log: "Hello From Client!", Num: int32(rand.Intn(100) + 1)}
+type Handler struct {
+	client message.MessageServiceClient
+}
 
+func NewHandler(client message.MessageServiceClient) *Handler {
+	return &Handler{client: client}
+}
+
+func (h *Handler) SendMessage(ctx context.Context, messageToSend *message.Message) error {
 	log.Infof("Client send message to server: %s", messageToSend)
-	response, err := client.SendMessage(ctx, messageToSend)
+	response, err := h.client.SendMessage(ctx, messageToSend)
 	if err != nil {
 		log.Errorf("error when calling SendMessage: %s", err)
 		return fmt.Errorf("error when calling SendMessage: %s", err)
@@ -24,18 +29,18 @@ func SendMessage(ctx context.Context, client message.MessageServiceClient) error
 	return nil
 }
 
-func SumOfNumbers(ctx context.Context, client message.MessageServiceClient) error {
+func (h *Handler) SumOfNumbers(ctx context.Context, numbers []int) error {
 	log.Infof("Client run SumOfNumbers")
-	numberStream, err := client.SumOfNumbers(ctx, grpc.EmptyCallOption{})
+	numberStream, err := h.client.SumOfNumbers(ctx, grpc.EmptyCallOption{})
 	if err != nil {
 		return err
 	}
 
-	for i := int32(1); i < int32(5); i++ {
-		log.Infof("Client send to server %d", i)
+	for _, num := range numbers {
+		log.Infof("Client send to server %d", num)
 		err := numberStream.Send(&message.Message{
-			Log: fmt.Sprintf("I send to server %d", i),
-			Num: i,
+			Log: fmt.Sprintf("I send to server %d", num),
+			Num: int32(num),
 		})
 		time.Sleep(time.Second)
 		if err != nil {
@@ -52,14 +57,10 @@ func SumOfNumbers(ctx context.Context, client message.MessageServiceClient) erro
 	return nil
 }
 
-func Factorial(ctx context.Context, client message.MessageServiceClient) error {
-	messageForServer := message.Message{
-		Log: "I want to get 4 3 2 1",
-		Num: 5,
-	}
-	log.Infof("Client run Factorial with message: %d, %s", messageForServer.Num, messageForServer.Log)
+func (h *Handler) Factorial(ctx context.Context, messageToSend *message.Message) error {
+	log.Infof("Client run Factorial with message: %d, %s", messageToSend.Num, messageToSend.Log)
 
-	factorialStream, err := client.Factorial(ctx, &messageForServer, grpc.EmptyCallOption{})
+	factorialStream, err := h.client.Factorial(ctx, messageToSend, grpc.EmptyCallOption{})
 	if err != nil {
 		return err
 	}
@@ -81,15 +82,15 @@ func Factorial(ctx context.Context, client message.MessageServiceClient) error {
 	// return on for cycle
 }
 
-func XPow2Chat(ctx context.Context, client message.MessageServiceClient) error {
+func (h *Handler) XPow2Chat(ctx context.Context, numbers []int) error {
 	log.Infof("Client run XPow2Chat")
 
-	chatStream, err := client.XPow2Chat(ctx, grpc.EmptyCallOption{})
+	chatStream, err := h.client.XPow2Chat(ctx, grpc.EmptyCallOption{})
 	if err != nil {
 		return err
 	}
 
-	// Client want to get x^2 for numbers 2, 4, 5, -10, 2, 11, 0, 6, 7
+	// Client want to get x^2 for numbers
 	// reading
 	go func() {
 		for {
@@ -106,11 +107,10 @@ func XPow2Chat(ctx context.Context, client message.MessageServiceClient) error {
 	}()
 
 	// sending
-	numbers := []int32{2, 4, 5, -10, 2, 11, 0, 6, 7}
-	for _, v := range numbers {
+	for _, num := range numbers {
 		messageToSend := message.Message{
 			Log: "I want to find x^2",
-			Num: v,
+			Num: int32(num),
 		}
 		log.Infof("Client send to server message: Num=%d Log=%s", messageToSend.Num, messageToSend.Log)
 		err := chatStream.Send(&messageToSend)
