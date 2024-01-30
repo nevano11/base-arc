@@ -10,16 +10,21 @@ import (
 // A server that accesses Tarantool and gives data from it to the client
 func main() {
 	var (
-		configPath string
-		etcdAddr   string
+		configPath     string
+		configFilename string
+		etcdAddr       string
 	)
 
 	flag.StringVar(&configPath, "config", "", "path to config")
-	flag.StringVar(&etcdAddr, "etcd", "", "etcd3 address")
+	flag.StringVar(&configFilename, "configFile", "", "config filename")
+	flag.StringVar(&etcdAddr, "etcd", "", "etcd address")
 	flag.Parse()
 
 	if len(configPath) > 0 {
 		log.Infof("Server started with config=%s\n", configPath)
+	}
+	if len(configFilename) > 0 {
+		log.Infof("Server started with configFilename=%s\n", configFilename)
 	}
 	if len(etcdAddr) > 0 {
 		log.Infof("Server started with etcd=%s\n", etcdAddr)
@@ -27,12 +32,12 @@ func main() {
 
 	ctx := context.Background()
 
-	err := bootstrap.Run(ctx, &bootstrap.Config{
-		ETCDAddr:   etcdAddr,
-		ConfigPath: configPath,
+	err := bootstrap.Run(ctx, &bootstrap.PathConfig{
+		ETCDAddr:       etcdAddr,
+		ConfigPath:     configPath,
+		ConfigFilename: configFilename,
 	})
 
-	//log.Sync()
 	if err != nil {
 		log.Fatal(err)
 	}

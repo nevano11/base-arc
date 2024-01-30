@@ -1,8 +1,0 @@
-{
-  "core-addr": "host.docker.internal:9000",
-  "tarantool": {
-    "addr": "localhost:3301",
-    "user": "name",
-    "password": "pass"
-  }
-}
